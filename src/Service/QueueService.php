@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Integration\EventDTO;
 use App\Options\Connection;
+use Exception;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
@@ -29,6 +30,7 @@ class QueueService
         );
 
         $this->channel = $connection->channel();
+        $this->channel->queue_declare('user.event', false, false, false, false);
     }
 
     /**
@@ -43,31 +45,24 @@ class QueueService
 
     /**
      * @return void
+     * @throws Exception
      */
-    public function receive()
+    public function receive(): void
     {
-        $callback = function ($msg) {
-            $this->handleMessage($msg->body);
-        };
-
-        $this->channel->basic_consume(
-            'user.event',
-            '',
-            false,
-            true,
-            false,
-            false,
-            $callback
-        );
-
         while ($this->channel->is_open()) {
-            $this->channel->wait();
+            $msg = $this->channel->basic_get('user.event', true);
+            $this->handleMessage($msg->body);
         }
+
+        $this->channel->close();
+        $this->channel->getConnection()->close();
     }
 
-    protected function handleMessage($body)
+    public function handleMessage($body)
     {
-        sleep(1);
-        echo $body;
+        sleep(2);
+        /** @var EventDTO $event */
+        $event = unserialize($body);
+        echo $event->getEventGuid() . PHP_EOL;
     }
 }
