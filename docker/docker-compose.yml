@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  bothelp.php-service:
+    build: ./dockerfiles/php-fpm
+    volumes:
+      - ../:/srv/www/bothelp
+    working_dir: "/srv/www/bothelp"
+
+  bothelp.rabbitmq:
+    image: rabbitmq:management
+    hostname: bot-help.rabbitmq
+    environment:
+      RABBITMQ_CONFIG_FILE: "/etc/rabbitmq/rabbitmq.conf"
+
+    ports:
+      - "45675:15672"
+      - "35675:5672"
+    volumes:
+      - bot-help.rabbitmq.data:/var/lib/rabbitmq
+      - ./etc/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      default:
+        aliases:
+          - bot-help.rabbitmq.host
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "node_health_check" ]
+      interval: 30s
+      timeout: 20s
+      retries: 10
+
+volumes:
+  bot-help.rabbitmq.data:
