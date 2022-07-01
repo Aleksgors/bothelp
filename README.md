@@ -1,5 +1,5 @@
 # bothelp
-======================
+
 Test task for Bot Help
 Тестовое задание
 
