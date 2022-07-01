@@ -11,5 +11,10 @@ return [
     'events_handle' => [
         'controller' => ConsoleController::class,
         'action' => 'handle',
+    ],
+
+    'consume' => [
+        'controller' => ConsoleController::class,
+        'action' => 'consume',
     ]
 ];

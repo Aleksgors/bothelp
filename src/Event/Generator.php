@@ -4,6 +4,7 @@ namespace App\Event;
 
 use Exception;
 use Ramsey\Uuid\Uuid;
+use App\Options\Application as AppOptions;
 
 /**
  * Class Generator
@@ -17,8 +18,8 @@ class Generator
      */
     public function generate(): array
     {
-        $userId = rand(0, 1000);
-        $eventAmount = rand(1, 10);
+        $userId = rand(0, AppOptions::ACCOUNTS_AMOUNT);
+        $eventAmount = rand(1, AppOptions::EVENTS_AMOUNT_PER_SEND);
 
         $events = [
             'userId' => $userId,

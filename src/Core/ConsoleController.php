@@ -7,6 +7,7 @@ use App\Integration\EventDTO;
 use App\Service\QueueService;
 use DateTime;
 use Exception;
+use App\Options\Application as AppOptions;
 
 /**
  * Class ConsoleController
@@ -19,8 +20,6 @@ class ConsoleController
 
     /** @var QueueService */
     protected $queueService;
-
-    protected $eventHandler;
 
     /**
      * ConsoleController constructor
@@ -46,7 +45,7 @@ class ConsoleController
             $userId = $eventsPack['userId'];
 
             foreach ($events as $event) {
-                $eventDTO = new EventDTO();
+                $eventDTO = $this->createDto();
                 $eventDTO
                     ->setUserId($userId)
                     ->setEventGuid($event['guid'])
@@ -57,17 +56,38 @@ class ConsoleController
 
             $eventsCount += count($events);
 
-            if ($eventsCount >= 100) {
+            if ($eventsCount >= AppOptions::EVENTS_AMOUNT) {
                 break;
             }
+
+            //sleep(rand(0, 5));
         }
     }
 
     /**
      * @return void
+     * @throws Exception
      */
     public function handleAction()
     {
         $this->queueService->receive();
+    }
+
+    /**
+     * @return void
+     */
+    public function consumeAction()
+    {
+        for ($i = 1; $i <= 20; $i++) {
+            exec("php " . __DIR__ . "/../../public/index.php events_handle >/dev/null 2>&1 &");
+        }
+    }
+
+    /**
+     * @return EventDTO
+     */
+    protected function createDto(): EventDTO
+    {
+        return new EventDTO();
     }
 }

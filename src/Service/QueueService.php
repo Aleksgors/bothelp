@@ -7,6 +7,7 @@ use App\Options\Connection;
 use Exception;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+use App\Options\Application as AppOptions;
 
 /**
  * Class QueueService
@@ -30,7 +31,7 @@ class QueueService
         );
 
         $this->channel = $connection->channel();
-        $this->channel->queue_declare('user.event', false, false, false, false);
+        $this->channel->queue_declare(Connection::QUEUE, false, false, false, false);
     }
 
     /**
@@ -40,7 +41,7 @@ class QueueService
     public function publishTask(EventDTO $event): void
     {
         $msg = new AMQPMessage(serialize($event));
-        $this->channel->basic_publish($msg, '', 'user.event');
+        $this->channel->basic_publish($msg, '', Connection::QUEUE);
     }
 
     /**
@@ -50,7 +51,7 @@ class QueueService
     public function receive(): void
     {
         while ($this->channel->is_open()) {
-            $msg = $this->channel->basic_get('user.event', true);
+            $msg = $this->channel->basic_get(Connection::QUEUE, true);
             $this->handleMessage($msg->body);
         }
 
@@ -60,9 +61,11 @@ class QueueService
 
     public function handleMessage($body)
     {
-        sleep(2);
+        sleep(AppOptions::HANDLING_DELAY);
+
         /** @var EventDTO $event */
         $event = unserialize($body);
+
         echo $event->getEventGuid() . PHP_EOL;
     }
 }

@@ -13,4 +13,6 @@ class Connection
     public const USER = 'developer';
     public const PASS = 'developer';
     public const V_HOST = 'bothelp';
+
+    public const QUEUE = 'user.event';
 }
