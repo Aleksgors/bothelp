@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Core\Logger;
 use App\Integration\EventDTO;
 use App\Options\Connection;
 use Exception;
@@ -15,13 +16,23 @@ use App\Options\Application as AppOptions;
  */
 class QueueService
 {
+    /**
+     * AMQP Channel
+     */
     protected $channel;
+
+    /**
+     * Logger
+     */
+    protected $logger;
 
     /**
      * QueueService constructor
      */
     public function __construct()
     {
+        $this->logger = new Logger();
+
         $connection = new AMQPStreamConnection(
             Connection::HOST,
             Connection::PORT,
@@ -66,6 +77,13 @@ class QueueService
         /** @var EventDTO $event */
         $event = unserialize($body);
 
-        echo $event->getEventGuid() . PHP_EOL;
+        $this->logger->log(
+            sprintf(
+                'UserId: %s Message GUID: %s ReceivingDateTime: %s',
+                $event->getUserId(),
+                $event->getEventGuid(),
+                $event->getReceiveDateTime()->format('Y-m-d H:i:s')
+            )
+        );
     }
 }

@@ -30,4 +30,9 @@ class Application
      * Максимальное количество сообщений за один запрос на API
      */
     public const EVENTS_AMOUNT_PER_SEND = 10;
+
+    /**
+     * Количество параллельных процессов
+     */
+    public const WORKERS_AMOUNT = 15;
 }

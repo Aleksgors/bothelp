@@ -60,7 +60,7 @@ class ConsoleController
                 break;
             }
 
-            //sleep(rand(0, 5));
+            sleep(rand(0, 2));
         }
     }
 
@@ -68,7 +68,7 @@ class ConsoleController
      * @return void
      * @throws Exception
      */
-    public function handleAction()
+    public function handleAction(): void
     {
         $this->queueService->receive();
     }
@@ -76,9 +76,9 @@ class ConsoleController
     /**
      * @return void
      */
-    public function consumeAction()
+    public function consumeAction(): void
     {
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= AppOptions::WORKERS_AMOUNT; $i++) {
             exec("php " . __DIR__ . "/../../public/index.php events_handle >/dev/null 2>&1 &");
         }
     }
